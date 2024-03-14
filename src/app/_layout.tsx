@@ -15,6 +15,12 @@ const RootLayout = () => {
           title: "Home",
         }}
       />
+      <Stack.Screen
+        name="[id]"
+        options={{
+          title: "",
+        }}
+      />
     </Stack>
   );
 };
