@@ -9,10 +9,7 @@ import {
   View,
 } from "react-native";
 import Animated, {
-  FadeInDown,
   FadeInLeft,
-  FadeInUp,
-  SlideInDown,
   useAnimatedRef,
   useAnimatedStyle,
   useScrollViewOffset,
@@ -29,8 +26,6 @@ export default function ScrollPage() {
   const height = useSharedValue<number>(150);
   const scaleY = useSharedValue<number>(1);
   const backgroundColor = useSharedValue<string>("#000000");
-
-  const searchBarWidth = useSharedValue<number>(0);
 
   // Animated ref values
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
