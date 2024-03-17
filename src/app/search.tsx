@@ -1,5 +1,8 @@
 import {
   ActivityIndicator,
+  FlatList,
+  Image,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,6 +16,8 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import filter from "lodash.filter";
+import { User } from "@/utils/types";
 import CustomPressable from "@/components/CustomPressable";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -23,7 +28,7 @@ const API_ENDPOINT = "https://randomuser.me/api/?results=30";
 const SearchBar = () => {
   // state variables
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [data, setData] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [fullData, setFullData] = useState<any[]>([]);
@@ -41,6 +46,7 @@ const SearchBar = () => {
       const json = await response.json();
       setData(json.results);
       console.log("🚀 ~ fetchData ~ data:", json.results);
+      setFullData(json.results);
     } catch (error: any) {
       console.log(error);
       setError(error);
@@ -50,7 +56,7 @@ const SearchBar = () => {
 
   // window dimension
   const { width } = useWindowDimensions();
-  console.log("🚀 ~ SearchBar ~ width:", width);
+
   // shared values
   const isSearchBarOpen = useSharedValue(false);
 
@@ -76,6 +82,34 @@ const SearchBar = () => {
   // onChange handler
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+    const formattedQuery = query.toLowerCase();
+    const filteredData = fullData.filter((user) => {
+      return contains(user, formattedQuery);
+    });
+    setData(filteredData);
+  };
+
+  interface ContainsProp {
+    user: {
+      name: {
+        first: string;
+        last: string;
+      };
+      email: string;
+    };
+    query: string;
+  }
+  const contains = ({ name, email }: User, query: string) => {
+    const { last, first } = name;
+
+    if (
+      last.includes(query) ||
+      first.includes(query) ||
+      email.includes(query)
+    ) {
+      return true;
+    }
+    return false;
   };
 
   if (isLoading) {
@@ -99,7 +133,7 @@ const SearchBar = () => {
     );
   }
   return (
-    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
+    <View style={styles.container}>
       <View
         style={{
           flexDirection: "row",
@@ -162,11 +196,27 @@ const SearchBar = () => {
           borderRadius: 5,
         }}
         value={searchQuery}
-        onChangeText={handleSearch}
+        onChangeText={setSearchQuery}
         autoCorrect={false}
         autoCapitalize="none"
+        returnKeyType="search"
+        onSubmitEditing={() => handleSearch(searchQuery)}
       />
-    </ScrollView>
+      <FlatList
+        data={data}
+        keyExtractor={(item) => item.login.username}
+        style={{ flex: 1, backgroundColor: "red" }}
+        renderItem={({ item }) => (
+          <Pressable style={styles.searchCard}>
+            <Image source={{ uri: item.picture.medium }} style={styles.image} />
+            <View style={styles.infoView}>
+              <Text style={styles.lastName}>{item.name.last}</Text>
+              <Text style={styles.email}>{item.email}</Text>
+            </View>
+          </Pressable>
+        )}
+      />
+    </View>
   );
 };
 
@@ -184,5 +234,27 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     alignItems: "center",
     justifyContent: "center",
+  },
+  searchCard: {
+    flexDirection: "row",
+    padding: 10,
+    gap: 10,
+  },
+  image: {
+    width: 60,
+    aspectRatio: 1,
+    borderRadius: 30,
+  },
+  infoView: {
+    gap: 5,
+    alignItems: "flex-start",
+  },
+  lastName: {
+    fontWeight: "600",
+    fontSize: 18,
+  },
+  email: {
+    fontSize: 15,
+    color: "grey",
   },
 });
