@@ -16,7 +16,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import filter from "lodash.filter";
 import { User } from "@/utils/types";
 import CustomPressable from "@/components/CustomPressable";
 import Ionicons from "@expo/vector-icons/Ionicons";
