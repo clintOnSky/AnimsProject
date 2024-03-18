@@ -31,6 +31,14 @@ export default function Page() {
           buttonStyle={styles.buttonStyle}
         />
       </Animated.View>
+      <Animated.View entering={SlideInLeft.duration(300).springify()}>
+        <CustomPressable
+          title="Go to Test Page"
+          href="/test"
+          viewStyle={styles.viewStyle}
+          buttonStyle={styles.buttonStyle}
+        />
+      </Animated.View>
     </ScrollView>
   );
 }
